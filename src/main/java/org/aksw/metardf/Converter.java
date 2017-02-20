@@ -1,8 +1,6 @@
 package org.aksw.metardf;
 
-import java.beans.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -15,8 +13,6 @@ import org.apache.jena.rdf.model.ResourceFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-//TODO auhorOf
-
 public class Converter {
 
 	private static JSONArray statementgroups = new JSONArray();
@@ -27,7 +23,6 @@ public class Converter {
 	private static final String sameAs = "owl:sameAs";
 	private static final String metatype = "kv-rdf-meta";
 
-	// TODO Duplicated ?
 	public static List<String> mids = new ArrayList<String>();
 
 	public Converter(JSONObject json) {
@@ -205,19 +200,6 @@ public class Converter {
 	public static String buildSeperateRdf(JSONObject l23) {
 		String myhash = hashForL23(l23);
 
-		
-		
-		//Model newmod = ModelFactory.createDefaultModel();
-
-		// TODO a comments L13_used_parameters
-		// <#root-id#>
-		// <http://sdw.aksw.org/datasets/artists-dataset/ontology/L13_used_parameters_Entry>
-		// <#entry-id#>
-		// <http://sdw.aksw.org/datasets/artists-dataset/ontology/position>
-		// “1”^^xsd:int
-		// <http://sdw.aksw.org/datasets/artists-dataset/ontology/L13_used_parameters>
-		// “30_Hashes”
-
 		String[] str;
 		str = JSONObject.getNames(l23);
 
@@ -229,9 +211,6 @@ public class Converter {
 				String uri = "";
 				String rootid = uri + myhash;
 
-				
-				
-				
 				for (int i = 0; i < l13.length; i++) {
 
 					
@@ -241,14 +220,14 @@ public class Converter {
 					RDFNode o_root = ResourceFactory.createResource(entryid);
 					Resource s_root = ResourceFactory.createResource(rootid);
 					Property p_root = ResourceFactory.createProperty(
-							"<http://sdw.aksw.org/datasets/artists-dataset/ontology/L13_used_parameters_Entry>");
+							"http://sdw.aksw.org/datasets/artists-dataset/ontology/L13_used_parameters_Entry");
 				
 					model.add(ResourceFactory.createStatement(s_root, p_root, o_root));
 
 					//Entry
 					Resource s_entry = ResourceFactory.createResource(entryid);
 					Property p_entry = ResourceFactory.createProperty(
-							"<http://sdw.aksw.org/datasets/artists-dataset/ontology/L13_used_parameters_Entry>");
+							"http://sdw.aksw.org/datasets/artists-dataset/ontology/L13_used_parameters");
 					RDFNode o_entry = ResourceFactory.createStringLiteral(l13[i]);
 
 					model.add(ResourceFactory.createStatement(s_entry, p_entry, o_entry));
@@ -256,7 +235,7 @@ public class Converter {
 					//EntryPos
 					Resource s_entrypos = ResourceFactory.createResource(entryid);
 					Property p_entrypos = ResourceFactory
-							.createProperty("<http://sdw.aksw.org/datasets/artists-dataset/ontology/position>");
+							.createProperty("http://sdw.aksw.org/datasets/artists-dataset/ontology/position");
 					RDFNode o_entrypos = ResourceFactory.createTypedLiteral(i);
 
 					model.add(ResourceFactory.createStatement(s_entrypos, p_entrypos, o_entrypos));
@@ -278,6 +257,7 @@ public class Converter {
 	 * @param o
 	 * @return
 	 */
+	//TODO authorOf?
 	public static JSONObject buildStatement(String uri, String propertyname, String o) {
 		JSONObject statement = new JSONObject();
 		statement.put("type", "triple");
@@ -305,7 +285,7 @@ public class Converter {
 	 */
 	public Model metardf() {
 
-		return this.model;
+		return model;
 	}
 
 	/**
