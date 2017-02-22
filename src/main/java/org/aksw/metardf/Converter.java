@@ -84,7 +84,7 @@ public class Converter {
 		String groupid = uri + "-" + propertyname + "-" + propertynumber;
 
 		if (propertyname.equals("a")) {
-			groupid = uri + "-" + "rdfType" + "-" + propertynumber;
+			groupid = "<"+uri + "-" + "rdfType" + "-" + propertynumber+">";
 		}
 
 		JSONObject newgroup = new JSONObject();
@@ -146,7 +146,7 @@ public class Converter {
 		JSONObject startedAt = new JSONObject();
 		startedAt.put("type", metatype);
 		startedAt.put("key", "<http://sdw.aksw.org/datasets/artists-dataset/ontology/startedAtTime>");
-		startedAt.put("value", "\"" + obj.get("startedAtTime").toString() + "\"" + "^^" + "@String");
+		startedAt.put("value", "\"" + obj.get("startedAtTime").toString() + "\"");
 
 		// confidence
 		JSONObject confidence = new JSONObject();

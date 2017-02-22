@@ -51,7 +51,7 @@ public class Cli {
 			
 			//Output json
 			Writer jsonoutput = new OutputStreamWriter(new FileOutputStream(output_path), StandardCharsets.UTF_8);
-			BufferedWriter jsonwriter = new BufferedWriter(jsonoutput);
+			//BufferedWriter jsonwriter = new BufferedWriter(jsonoutput);
 		
 			//Input json
 			BufferedReader br = Files.newBufferedReader(Paths.get(input_path), StandardCharsets.UTF_8);
@@ -64,8 +64,10 @@ public class Cli {
 				Model rdfdata = conv.metardf();
 				JSONObject jsondata = conv.join();
 				
-				jsonwriter.write(jsondata.toString());
-				jsonwriter.newLine();
+				jsonoutput.write(jsondata.toString());
+				
+//				jsonwriter.write(jsondata.toString());
+//				jsonwriter.newLine();
 				
 				StreamOps.graphToStream(rdfdata.getGraph(), rdfwriter) ;
 			}
