@@ -1,7 +1,6 @@
 package org.aksw.metardf;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -13,6 +12,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -34,13 +34,22 @@ public class Cli {
 	public static void main(String[] args) {
 
 		//Args stuff
-		if (args.length != 2) {
+		if (args.length != 2 && args.length != 3) {
 			printUsage();
-			System.exit(0);
+			
 		}
+		
 		String input_path = args[0];
 		String output_path = args[1];
+		boolean zip = false;
 		
+		if(args.length == 3) {
+			if(args[2].equals("-gz")) {
+				zip = true;
+			} else {
+				printUsage();
+			}
+		}
 		
 		JSONObject object = null;
 		try {
@@ -48,10 +57,17 @@ public class Cli {
 			//Output RDF
 			OutputStream rdfoutput = new FileOutputStream(new File(output_path+".nt"));
 			StreamRDF rdfwriter = StreamRDFWriter.getWriterStream(rdfoutput , RDFFormat.NTRIPLES_UTF8) ;
-			
+		
 			//Output json
-			Writer jsonoutput = new OutputStreamWriter(new FileOutputStream(output_path), StandardCharsets.UTF_8);
-			//BufferedWriter jsonwriter = new BufferedWriter(jsonoutput);
+			Writer jsonoutput;
+			
+			if(zip) {
+				FileOutputStream output = new FileOutputStream(output_path+".gz");
+				jsonoutput = new OutputStreamWriter(new GZIPOutputStream(output), "UTF-8");
+			} else {
+				FileOutputStream output = new FileOutputStream(output_path);
+				jsonoutput = new OutputStreamWriter(output, StandardCharsets.UTF_8);
+			}
 		
 			//Input json
 			BufferedReader br = Files.newBufferedReader(Paths.get(input_path), StandardCharsets.UTF_8);
@@ -84,10 +100,14 @@ public class Cli {
 		
 		cleanrdf(output_path+".nt", output_path, "N-TRIPLES");
 		
-		System.out.println("writed json to "+output_path);
+		if(zip) {
+			System.out.println("writed json to "+output_path+".gz");
+		} else {
+			System.out.println("writed json to "+output_path);
+		}
 		System.out.println("writed rdf to "+output_path+".nt");
 		System.out.println("writed clean rdf to "+output_path+".clean.nt");
-			
+
 	}
 	
 	/**
@@ -124,5 +144,7 @@ public class Cli {
 		System.out.println("--------------------------");
 		System.out.println("args[0] = path/to/input/file");
 		System.out.println("args[1] = path/to/output/file");
+		System.out.println("optional flag -gz for zipped output");
+		System.exit(0);	
 	}
 }

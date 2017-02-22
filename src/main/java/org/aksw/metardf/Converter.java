@@ -1,5 +1,8 @@
 package org.aksw.metardf;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -24,7 +27,7 @@ public class Converter {
 	private static final String metatype = "kv-rdf-meta";
 
 	public static List<String> mids = new ArrayList<String>();
-
+	
 	public Converter(JSONObject json) {
 		transform(json);
 	}
@@ -41,7 +44,7 @@ public class Converter {
 		for (Object o : input.keySet().toArray()) {
 
 			Object json = input.get(o.toString());
-			
+
 			if (json instanceof JSONArray) {
 				// It's an array
 				JSONArray ja = (JSONArray) json;
@@ -61,17 +64,6 @@ public class Converter {
 	}
 
 	/**
-	 * wasGeneratedBy Hash
-	 * 
-	 * @param obj
-	 * @return
-	 */
-	public static String buildmidhash(Object obj) {
-
-		return String.valueOf(obj.hashCode());
-	}
-
-	/**
 	 * 
 	 * @param uri
 	 * @param group
@@ -79,12 +71,12 @@ public class Converter {
 	 * @param propertynumber
 	 */
 	public static void buildStatementGroup(String uri, JSONObject group, String propertyname, String propertynumber) {
-		
-		// TODO sdw.aksw?
-		String groupid = uri + "-" + propertyname + "-" + propertynumber;
+
+		// TODO Uri sdw.aksw/resources?
+		String groupid = "<" + uri + "-" + propertyname + "-" + propertynumber + ">";
 
 		if (propertyname.equals("a")) {
-			groupid = "<"+uri + "-" + "rdfType" + "-" + propertynumber+">";
+			groupid = "<" + uri + "-" + "rdfType" + "-" + propertynumber + ">";
 		}
 
 		JSONObject newgroup = new JSONObject();
@@ -125,125 +117,183 @@ public class Converter {
 	 */
 	public static String buildmeta(JSONObject obj) {
 		
-		String metaHash = "<http://sdw.aksw.org/datasets/artists-dataset/mids/" + buildmidhash(obj) + ">";
-
-		mids.add(metaHash);
-
-		JSONObject newmeta = new JSONObject();
-		newmeta.put("groupid", metaHash);
-		newmeta.put("grouptype", "strong");
-
-		// TODO check if a, startedAtTime, L2, L23 = Null
-		JSONArray mFacts = new JSONArray();
-
-		// rdf:type
-		JSONObject type = new JSONObject();
-		type.put("type", metatype);
-		type.put("key", "<" + rdfType + ">");
-		type.put("value", "<http://sdw.aksw.org/datasets/artists-dataset/ontology/" + obj.get("a").toString());
-
-		// startedAtTime
-		JSONObject startedAt = new JSONObject();
-		startedAt.put("type", metatype);
-		startedAt.put("key", "<http://sdw.aksw.org/datasets/artists-dataset/ontology/startedAtTime>");
-		startedAt.put("value", "\"" + obj.get("startedAtTime").toString() + "\"");
-
-		// confidence
-		JSONObject confidence = new JSONObject();
-		confidence.put("type", metatype);
-		confidence.put("key", "<http://sdw.aksw.org/datasets/artists-dataset/ontology/confidence>");
-		confidence.put("value",
-				"\"" + (new Random().nextFloat()) + "\"" + "^^" + "<http://www.w3.org/2001/XMLSchema#decimal>");
-
 		
-		// L2_used_as_source
-		JSONArray l2 = obj.getJSONArray("L2_used_as_source");
-
-		for (int i = 0; i < l2.length(); i++) {
-			JSONObject used_as_source = new JSONObject();
-			used_as_source.put("type", metatype);
-			used_as_source.put("key", "<http://sdw.aksw.org/datasets/artists-dataset/ontology/L2_used_as_source>");
-			used_as_source.put("value", "\"" + l2.getJSONObject(i).get("uri") + "\"");
-			mFacts.put(used_as_source);
-		}
+		String metaHash = "<http://sdw.aksw.org/datasets/artists-dataset/mids/" + hashForMid(obj) + ">";
 		
-		// L23_used_software_or_firmware
-		JSONArray l23 = obj.getJSONArray("L23_used_software_or_firmware");
+		if (!mids.contains(metaHash)) {
 
-		for (int k = 0; k < l23.length(); k++) {
+			mids.add(metaHash);
+
+			JSONObject newmeta = new JSONObject();
+			newmeta.put("groupid", metaHash);
+			
+			newmeta.put("grouptype", "strong");
+
+			JSONArray mFacts = new JSONArray();
+
+			// rdf:type
+			JSONObject type = new JSONObject();
+			type.put("type", metatype);
+			type.put("key", "<" + rdfType + ">");
+			type.put("value", "<http://sdw.aksw.org/datasets/artists-dataset/ontology/" + obj.get("a").toString() + ">");
+			mFacts.put(type);
+
+			// startedAtTime
+			JSONObject startedAt = new JSONObject();
+			startedAt.put("type", metatype);
+			startedAt.put("key", "<http://sdw.aksw.org/datasets/artists-dataset/ontology/startedAtTime>");
+			startedAt.put("value", "\"" + obj.get("startedAtTime").toString() + "\"");
+			mFacts.put(startedAt);
+			
+			// confidence
+			JSONObject confidence = new JSONObject();
+			confidence.put("type", metatype);
+			confidence.put("key", "<http://sdw.aksw.org/datasets/artists-dataset/ontology/confidence>");
+			confidence.put("value",
+					"\"" + (new Random().nextFloat()) + "\"" + "^^" + "<http://www.w3.org/2001/XMLSchema#decimal>");
+			mFacts.put(confidence);
+			
+			// L2_used_as_source
+			JSONArray l2 = obj.getJSONArray("L2_used_as_source");
+
+			for (int i = 0; i < l2.length(); i++) {
+				JSONObject used_as_source = new JSONObject();
+				used_as_source.put("type", metatype);
+				used_as_source.put("key", "<http://sdw.aksw.org/datasets/artists-dataset/ontology/L2_used_as_source>");
+				used_as_source.put("value", "\"" + l2.getJSONObject(i).get("uri") + "\"");
+				mFacts.put(used_as_source);
+			}
+
+			// L23_used_software_or_firmware
+			JSONArray l23 = obj.getJSONArray("L23_used_software_or_firmware");
+
 			JSONObject used_software_or_firmware = new JSONObject();
 			used_software_or_firmware.put("type", metatype);
 			used_software_or_firmware.put("key",
 					"<http://sdw.aksw.org/datasets/artists-dataset/ontology/L23_used_software_or_firmware>");
-			String value = buildSeperateRdf(l23.getJSONObject(k));
+			
+			String value = buildSeperateRdf(l23);
 			used_software_or_firmware.put("value",
-					"<" + "http://sdw.aksw.org/datasets/artists-dataset/ids/" + value + ">");
+						"<" + "http://sdw.aksw.org/datasets/artists-dataset/ids/" + value + ">");
 			mFacts.put(used_software_or_firmware);
+
+			newmeta.put("metadataFacts", mFacts);
+
+			metadata.put(newmeta);
+
 		}
-
-		
-		mFacts.put(type);
-		mFacts.put(startedAt);
-		mFacts.put(confidence);
-
-		newmeta.put("metadataFacts", mFacts);
-
-		metadata.put(newmeta);
 
 		return metaHash;
 	}
 
-	public static String hashForL23(JSONObject l23) {
-		return String.valueOf(l23.hashCode());
+	/**
+	 * L23 Hash
+	 * 
+	 * @param l23
+	 * @return
+	 */
+	public static String hashForL23(JSONArray l23) {
+		return String.valueOf(l23.toString().hashCode());
 	}
 
-	public static String buildSeperateRdf(JSONObject l23) {
+	/**
+	 * wasGeneratedBy Hash
+	 * 
+	 * @param obj
+	 * @return
+	 */
+	public static String hashForMid(Object obj) {
+		return toHashCode(obj.toString());
+	}
+
+	/**
+	 * String -> MD5
+	 * 
+	 * @param input
+	 * @return
+	 */
+	public static String toHashCode(String input) {
+		String hashValue = "";
+		MessageDigest md;
+		try {
+			md = MessageDigest.getInstance("MD5");
+			md.update(input.getBytes());
+			byte[] db = md.digest();
+			hashValue = new BigInteger(1, db).toString();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return hashValue;
+	}
+
+	public static String buildSeperateRdf(JSONArray l23) {
 		String myhash = hashForL23(l23);
 
-		String[] str;
-		str = JSONObject.getNames(l23);
+		
+		
+		String uri = "http://sdw.aksw.org/datasets/artists-dataset/ids/";
+		String rootid = uri + myhash;
+		
+		//each JSONObject
+		for (int k = 0; k < l23.length(); k++) { 
+			JSONObject l23obj = l23.getJSONObject(k);
+		
+			
+			String entryid = uri + myhash + "-entry-" + k;
+			// Root->Entry
+			RDFNode o_root = ResourceFactory.createResource(entryid);
+			Resource s_root = ResourceFactory.createResource(rootid);
+			Property p_root = ResourceFactory.createProperty(
+					"http://sdw.aksw.org/datasets/artists-dataset/ontology/L13_used_parameters_Entry");
+			model.add(ResourceFactory.createStatement(s_root, p_root, o_root));
 
-		for (String st : str) {
-			if (st.equals("L13_used_parameters")) {
-				String[] l13 = l23.getString("L13_used_parameters").split(",");
+			// EntryPos
+			Resource s_entrypos = ResourceFactory.createResource(entryid);
+			Property p_entrypos = ResourceFactory
+					.createProperty("http://sdw.aksw.org/datasets/artists-dataset/ontology/position");
+			RDFNode o_entrypos = ResourceFactory.createTypedLiteral(k);
 
-				// TODO uri?
-				String uri = "";
-				String rootid = uri + myhash;
+			model.add(ResourceFactory.createStatement(s_entrypos, p_entrypos, o_entrypos));
+			
+			//Entry
+			String[] str;
+			str = JSONObject.getNames(l23obj);
 
-				for (int i = 0; i < l13.length; i++) {
-
-					
-					String entryid = myhash + "-entry-" + i;
-					
-					//Root->Entry
-					RDFNode o_root = ResourceFactory.createResource(entryid);
-					Resource s_root = ResourceFactory.createResource(rootid);
-					Property p_root = ResourceFactory.createProperty(
-							"http://sdw.aksw.org/datasets/artists-dataset/ontology/L13_used_parameters_Entry");
+			for (String st : str) {
 				
-					model.add(ResourceFactory.createStatement(s_root, p_root, o_root));
-
-					//Entry
+				if(st.equalsIgnoreCase("a")) {
 					Resource s_entry = ResourceFactory.createResource(entryid);
 					Property p_entry = ResourceFactory.createProperty(
-							"http://sdw.aksw.org/datasets/artists-dataset/ontology/L13_used_parameters");
-					RDFNode o_entry = ResourceFactory.createStringLiteral(l13[i]);
-
+							rdfType);
+					RDFNode o_entry = ResourceFactory.createStringLiteral(l23obj.getString("a"));
 					model.add(ResourceFactory.createStatement(s_entry, p_entry, o_entry));
+				}
+				
+				if(st.equalsIgnoreCase("comment")) {
+					Resource s_entry = ResourceFactory.createResource(entryid);
+					Property p_entry = ResourceFactory.createProperty(
+							"http://www.w3.org/2000/01/rdf-schema#comment");
+					RDFNode o_entry = ResourceFactory.createStringLiteral(l23obj.getString("comment"));
+					model.add(ResourceFactory.createStatement(s_entry, p_entry, o_entry));
+				}
+				
+				if (st.equals("L13_used_parameters")) {
+					String[] l13params = l23obj.getString("L13_used_parameters").split(",");
 
-					//EntryPos
-					Resource s_entrypos = ResourceFactory.createResource(entryid);
-					Property p_entrypos = ResourceFactory
-							.createProperty("http://sdw.aksw.org/datasets/artists-dataset/ontology/position");
-					RDFNode o_entrypos = ResourceFactory.createTypedLiteral(i);
+					for (int i = 0; i < l13params.length; i++) {
+						
+						// Entry
+						Resource s_entry = ResourceFactory.createResource(entryid);
+						Property p_entry = ResourceFactory.createProperty(
+								"http://sdw.aksw.org/datasets/artists-dataset/ontology/L13_used_parameters");
+						RDFNode o_entry = ResourceFactory.createStringLiteral(l13params[i]);
 
-					model.add(ResourceFactory.createStatement(s_entrypos, p_entrypos, o_entrypos));
-					
+						model.add(ResourceFactory.createStatement(s_entry, p_entry, o_entry));
+						
+					}
 				}
 			}
 		}
-
 		// model.write(System.out, "N_TRIPLES");
 
 		return myhash;
@@ -257,13 +307,11 @@ public class Converter {
 	 * @param o
 	 * @return
 	 */
-	//TODO authorOf?
 	public static JSONObject buildStatement(String uri, String propertyname, String o) {
 		JSONObject statement = new JSONObject();
 		statement.put("type", "triple");
 		statement.put("sid", "");
 
-		// TODO Uri sdw.aksw/resources?
 		String s = uri;
 		String p = "http://sdw.aksw.org/datasets/artists-dataset/ontology/" + propertyname;
 		if (propertyname.equals("a")) {
