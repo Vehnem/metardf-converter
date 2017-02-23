@@ -80,7 +80,7 @@ public class Cli {
 				Model rdfdata = conv.metardf();
 				JSONObject jsondata = conv.join();
 				
-				jsonoutput.write(jsondata.toString());
+				jsonoutput.write(jsondata.toString()+"\n");
 				
 //				jsonwriter.write(jsondata.toString());
 //				jsonwriter.newLine();
