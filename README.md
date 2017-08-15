@@ -1,6 +1,6 @@
 # Metardf-converter
 
-This tool converts the [artists dataset](https://bitbucket.org/GlebGawriljuk/aifb-isi-knowledgegraphconstruction/src/160d080404f3097b5f267ce61197643bc299a449/KG_final.json.gz?at=master&fileviewer=file-view-default) <sup>[1](#ref1)</sup> with  statement-level provenance in a resource centric json format into the metadata agnostic [meta-rdf format](https://github.com/AKSW/meta-rdf)
+This tool converts the [artists dataset](https://bitbucket.org/GlebGawriljuk/aifb-isi-knowledgegraphconstruction/src/160d080404f3097b5f267ce61197643bc299a449/KG_final.json.gz?at=master&fileviewer=file-view-default) [1](#ref1) with  statement-level provenance in a resource centric json format into the metadata agnostic [meta-rdf format](https://github.com/AKSW/meta-rdf)
 
 ## Basic usage
 
