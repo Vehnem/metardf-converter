@@ -13,4 +13,4 @@ if gz flag is set then use gzip file as input stream
 
 ##  Related papers
 
-<a name="ref1">1</a> G. Gawriljuk, A. Harth, C. A. Knoblock, and P. Szekely. A scalable approach to incrementally building knowledge graphs. In International Conference on Theory and Practice of Digital Libraries, volume 9819 of Lecture Notes in Computer Science, pages 188–199. Springer, Springer, 2016
+<a name="ref1">1.</a> G. Gawriljuk, A. Harth, C. A. Knoblock, and P. Szekely. A scalable approach to incrementally building knowledge graphs. In International Conference on Theory and Practice of Digital Libraries, volume 9819 of Lecture Notes in Computer Science, pages 188–199. Springer, Springer, 2016
