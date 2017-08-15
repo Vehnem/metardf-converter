@@ -11,6 +11,6 @@ This tool converts the [artists dataset](https://bitbucket.org/GlebGawriljuk/aif
 
 if gz flag is set then use gzip file as input stream
 
-## Papers introducing metardf
+##  Related papers
 
 * G. Gawriljuk, A. Harth, C. A. Knoblock, and P. Szekely. A scalable approach to incrementally building knowledge graphs. In International Conference on Theory and Practice of Digital Libraries, volume 9819 of Lecture Notes in Computer Science, pages 188–199. Springer, Springer, 2016
